@@ -1,0 +1,8 @@
+com\booknest\bookservice\controller\BookController.class
+com\booknest\bookservice\repository\BookRepository.class
+com\booknest\bookservice\service\BookService.class
+com\booknest\bookservice\config\CorsConfig.class
+com\booknest\bookservice\filter\ApiKeyFilter.class
+com\booknest\bookservice\model\Book.class
+com\booknest\bookservice\BookServiceApplication.class
+com\booknest\bookservice\config\CorsConfig$1.class
