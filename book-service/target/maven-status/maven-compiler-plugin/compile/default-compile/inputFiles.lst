@@ -1,7 +1,0 @@
-C:\Users\Dell\Downloads\booknest-starter\book-service\src\main\java\com\booknest\bookservice\BookServiceApplication.java
-C:\Users\Dell\Downloads\booknest-starter\book-service\src\main\java\com\booknest\bookservice\config\CorsConfig.java
-C:\Users\Dell\Downloads\booknest-starter\book-service\src\main\java\com\booknest\bookservice\controller\BookController.java
-C:\Users\Dell\Downloads\booknest-starter\book-service\src\main\java\com\booknest\bookservice\filter\ApiKeyFilter.java
-C:\Users\Dell\Downloads\booknest-starter\book-service\src\main\java\com\booknest\bookservice\model\Book.java
-C:\Users\Dell\Downloads\booknest-starter\book-service\src\main\java\com\booknest\bookservice\repository\BookRepository.java
-C:\Users\Dell\Downloads\booknest-starter\book-service\src\main\java\com\booknest\bookservice\service\BookService.java
