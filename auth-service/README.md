@@ -1,44 +1,36 @@
-# auth-service
+# Auth Service (Student 1 - Gateway Lead)
 
-BookNest Auth & User Service. Runs on port 8081.
+## Run locally
+1. Make sure MongoDB is running on localhost:27017
+2. `mvn spring-boot:run`
+3. Swagger UI: http://localhost:8081/swagger-ui.html
+4. All endpoints require header: `X-API-KEY: auth-service-secret-key`
 
-## Run it
+## Endpoints
 
-```bash
-docker run -d -p 27017:27017 mongo   # if Mongo isn't already running
-mvn spring-boot:run
+### POST /auth/register
+```json
+{
+  "fullName": "Nimal Perera",
+  "email": "nimal@example.com",
+  "password": "mypassword123"
+}
 ```
+Returns 201 + { token, userId, fullName, email, role }
 
-## Test it directly (before the gateway exists)
+### POST /auth/login
+```json
+{
+  "email": "nimal@example.com",
+  "password": "mypassword123"
+}
+```
+Returns 200 + { token, userId, fullName, email, role }
 
-Swagger UI: http://localhost:8081/swagger-ui.html
-
-All requests need header: `X-API-KEY: auth-service-secret-key`
-
-1. `POST /auth/register`
-   ```json
-   { "fullName": "Ada Lovelace", "email": "ada@example.com", "passwordHash": "plaintext-password-here" }
-   ```
-   (the field is named `passwordHash` in the request body because it's reused as the raw
-   password on the way in, then overwritten with the real hash before saving — see `AuthService.register`)
-
-2. `POST /auth/login`
-   ```json
-   { "email": "ada@example.com", "password": "plaintext-password-here" }
-   ```
-   Returns `{ "token": "<jwt>" }`
-
-3. `GET /users/{id}` — returns the user's profile (no password hash in the response)
-
-4. `PUT /users/{id}/profile` — update `fullName` only
-
-## Important: keep this in sync with api-gateway
-
-`app.jwt.secret` in `application.properties` must be **byte-for-byte identical** to
-`app.jwt.secret` in `api-gateway/src/main/resources/application.yml`. The gateway
-re-derives the signing key from this string to verify tokens issued here — if they
-drift, every authenticated request through the gateway will fail with 401 even
-though this service works fine standalone.
-
-Also generate a real random secret before anyone deploys this anywhere beyond
-localhost — the placeholder in `application.properties` is not safe to keep.
+## Test with Postman
+1. POST http://localhost:8081/auth/register with the JSON body above
+   Headers: Content-Type: application/json, X-API-KEY: auth-service-secret-key
+2. Copy the "token" from the response
+3. POST http://localhost:8081/auth/login to confirm login also works
+4. This token is what the frontend stores and sends as
+   "Authorization: Bearer <token>" on every other request

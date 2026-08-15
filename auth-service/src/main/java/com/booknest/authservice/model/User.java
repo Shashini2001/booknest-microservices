@@ -3,15 +3,19 @@ package com.booknest.authservice.model;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.time.LocalDateTime;
+
 @Document(collection = "users")
 public class User {
 
     @Id
     private String id;
+
     private String fullName;
     private String email;
     private String passwordHash;
-    private String role; // "USER" or "ADMIN"
+    private String role; // CUSTOMER or ADMIN
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     public User() {
     }
@@ -54,5 +58,13 @@ public class User {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

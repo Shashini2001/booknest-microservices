@@ -18,7 +18,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
-                                    FilterChain chain) throws ServletException, IOException {
+                                     FilterChain chain) throws ServletException, IOException {
 
         String path = request.getRequestURI();
         if (path.contains("swagger") || path.contains("api-docs")) {

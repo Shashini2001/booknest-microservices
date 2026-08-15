@@ -17,22 +17,23 @@ public class ApiKeyFilter extends OncePerRequestFilter {
     private String apiKey;
 
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest req) {
-        String path = req.getRequestURI();
-        return path.startsWith("/swagger-ui")
-                || path.startsWith("/v3/api-docs")
-                || path.equals("/swagger-ui.html");
-    }
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+                                     FilterChain chain) throws ServletException, IOException {
 
-    @Override
-    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
-            throws ServletException, IOException {
-        String key = req.getHeader("X-API-KEY");
-        if (key == null || !key.equals(apiKey)) {
-            res.setStatus(401);
-            res.getWriter().write("Invalid API Key");
+        String path = request.getRequestURI();
+        if (path.contains("swagger") || path.contains("api-docs")) {
+            chain.doFilter(request, response);
             return;
         }
-        chain.doFilter(req, res);
+
+        String providedKey = request.getHeader("X-API-KEY");
+        if (providedKey == null || !providedKey.equals(apiKey)) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Missing or invalid X-API-KEY header\"}");
+            return;
+        }
+
+        chain.doFilter(request, response);
     }
 }

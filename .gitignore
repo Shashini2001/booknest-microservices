@@ -1,7 +1,16 @@
+# Java / Maven
 target/
-node_modules/
-.env
 *.class
+
+# Node / React
+node_modules/
+build/
+.env.local
+
+# IDE
 .idea/
 .vscode/
 *.iml
+
+# OS
+.DS_Store

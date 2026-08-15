@@ -1,0 +1,128 @@
+version: "3.8"
+
+services:
+  # ---------- Infrastructure ----------
+  mongo:
+    image: mongo:7
+    container_name: booknest-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - booknest-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: booknest-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - booknest-network
+
+  # ---------- Backend microservices ----------
+  auth-service:
+    build: ./auth-service
+    container_name: auth-service
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/authdb
+    depends_on:
+      - mongo
+    networks:
+      - booknest-network
+
+  book-service:
+    build: ./book-service
+    container_name: book-service
+    ports:
+      - "8087:8087"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/bookdb
+    depends_on:
+      - mongo
+    networks:
+      - booknest-network
+
+  reading-progress-service:
+    build: ./reading-progress-service
+    container_name: reading-progress-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/readingdb
+    depends_on:
+      - mongo
+    networks:
+      - booknest-network
+
+  order-service:
+    build: ./order-service
+    container_name: order-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/orderdb
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - mongo
+      - rabbitmq
+    networks:
+      - booknest-network
+
+  delivery-service:
+    build: ./delivery-service
+    container_name: delivery-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_DATA_MONGODB_URI=mongodb://mongo:27017/deliverydb
+      - SPRING_RABBITMQ_HOST=rabbitmq
+    depends_on:
+      - mongo
+      - rabbitmq
+    networks:
+      - booknest-network
+
+  # ---------- Gateway ----------
+  api-gateway:
+    build: ./api-gateway
+    container_name: api-gateway
+    ports:
+      - "8080:8080"
+    environment:
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - BOOK_SERVICE_URL=http://book-service:8087
+      - READING_SERVICE_URL=http://reading-progress-service:8083
+      - ORDER_SERVICE_URL=http://order-service:8084
+      - DELIVERY_SERVICE_URL=http://delivery-service:8085
+    depends_on:
+      - auth-service
+      - book-service
+      - reading-progress-service
+      - order-service
+      - delivery-service
+    networks:
+      - booknest-network
+
+  # ---------- Frontend ----------
+  client-app:
+    build: ./client-app
+    container_name: client-app
+    ports:
+      - "3000:3000"
+    environment:
+      - REACT_APP_API_URL=http://localhost:8080/api
+    depends_on:
+      - api-gateway
+    networks:
+      - booknest-network
+
+networks:
+  booknest-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

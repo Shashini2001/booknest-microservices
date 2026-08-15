@@ -1,49 +1,52 @@
 package com.booknest.authservice.service;
 
+import com.booknest.authservice.dto.AuthResponse;
+import com.booknest.authservice.dto.LoginRequest;
+import com.booknest.authservice.dto.RegisterRequest;
 import com.booknest.authservice.model.User;
 import com.booknest.authservice.repository.UserRepository;
-import com.booknest.authservice.security.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
 
     @Autowired
-    private UserRepository repo;
+    private UserRepository userRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private PasswordEncoder passwordEncoder;
 
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    @Autowired
+    private JwtService jwtService;
 
-    public User register(User u) {
-        if (repo.findByEmail(u.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("Email already registered");
+    public AuthResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already registered");
         }
-        u.setPasswordHash(encoder.encode(u.getPasswordHash())); // raw password arrives in this field
-        u.setRole("USER");
-        return repo.save(u);
+
+        User user = new User();
+        user.setFullName(request.getFullName());
+        user.setEmail(request.getEmail());
+        user.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        user.setRole("CUSTOMER");
+
+        User saved = userRepository.save(user);
+        String token = jwtService.generateToken(saved.getId(), saved.getEmail(), saved.getRole());
+
+        return new AuthResponse(token, saved.getId(), saved.getFullName(), saved.getEmail(), saved.getRole());
     }
 
-    public String login(String email, String rawPassword) {
-        User u = repo.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid credentials"));
-        if (!encoder.matches(rawPassword, u.getPasswordHash())) {
-            throw new IllegalArgumentException("Invalid credentials");
+    public AuthResponse login(LoginRequest request) {
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new RuntimeException("Invalid email or password"));
+
+        if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
+            throw new RuntimeException("Invalid email or password");
         }
-        return jwtUtil.generateToken(u.getId(), u.getEmail(), u.getRole());
-    }
 
-    public User getById(String id) {
-        return repo.findById(id).orElseThrow(() -> new IllegalArgumentException("User not found"));
-    }
-
-    public User updateProfile(String id, User u) {
-        User existing = getById(id);
-        existing.setFullName(u.getFullName());
-        // email/password changes intentionally excluded from this endpoint - keep those separate
-        return repo.save(existing);
+        String token = jwtService.generateToken(user.getId(), user.getEmail(), user.getRole());
+        return new AuthResponse(token, user.getId(), user.getFullName(), user.getEmail(), user.getRole());
     }
 }

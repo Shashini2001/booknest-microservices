@@ -1,30 +1,37 @@
 package com.booknest.authservice.controller;
 
-import com.booknest.authservice.model.User;
+import com.booknest.authservice.dto.AuthResponse;
+import com.booknest.authservice.dto.LoginRequest;
+import com.booknest.authservice.dto.RegisterRequest;
 import com.booknest.authservice.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
     @Autowired
-    private AuthService service;
+    private AuthService authService;
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody User u) {
-        User created = service.register(u);
-        created.setPasswordHash(null); // never echo the hash back
-        return ResponseEntity.status(201).body(created);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            AuthResponse response = authService.register(request);
+            return ResponseEntity.status(201).body(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Map<String, String>> login(@RequestBody Map<String, String> body) {
-        String token = service.login(body.get("email"), body.get("password"));
-        return ResponseEntity.ok(Map.of("token", token));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            AuthResponse response = authService.login(request);
+            return ResponseEntity.ok(response);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(401).body("{\"error\": \"" + e.getMessage() + "\"}");
+        }
     }
 }
