@@ -6,6 +6,13 @@ spring:
     name: api-gateway
   cloud:
     gateway:
+      globalcors:
+        cors-configurations:
+          '[/**]':
+            allowedOrigins: "http://localhost:3000"
+            allowedMethods: [GET, POST, PUT, DELETE, OPTIONS]
+            allowedHeaders: "*"
+            allowCredentials: true
       routes:
         - id: auth-service
           uri: http://localhost:8081
@@ -13,41 +20,31 @@ spring:
             - Path=/api/auth/**
           filters:
             - StripPrefix=1
-        - id: user-service
-          uri: http://localhost:8081
-          predicates:
-            - Path=/api/users/**
-          filters:
-            - StripPrefix=1
+
         - id: book-service
-          uri: http://localhost:8082
+          uri: http://localhost:8087
           predicates:
             - Path=/api/books/**
           filters:
             - StripPrefix=1
+
         - id: reading-service
           uri: http://localhost:8083
           predicates:
             - Path=/api/reading/**
           filters:
             - StripPrefix=1
+
         - id: order-service
           uri: http://localhost:8084
           predicates:
             - Path=/api/orders/**
           filters:
             - StripPrefix=1
+
         - id: delivery-service
           uri: http://localhost:8085
           predicates:
             - Path=/api/deliveries/**
           filters:
             - StripPrefix=1
-
-# MUST be byte-for-byte identical to app.jwt.secret in auth-service's application.properties
-app:
-  jwt:
-    secret: change-this-to-a-long-random-string-at-least-32-characters
-  rate-limit:
-    max-requests: 20
-    window-ms: 60000

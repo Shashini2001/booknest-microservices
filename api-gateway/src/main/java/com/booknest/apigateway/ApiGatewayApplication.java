@@ -1,4 +1,4 @@
-package com.booknest.gateway;
+package com.booknest.apigateway;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
