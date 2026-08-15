@@ -1,51 +1,66 @@
 import React, { useEffect, useState } from "react";
-import { getAllBooks, getBooksByCategory } from "../api/bookApi";
+import { getAllBooks, getBooksByCategory, searchBooks } from "../api/bookApi";
 import BookCard from "../components/BookCard";
+import LoadingState from "../components/LoadingState";
+import EmptyState from "../components/EmptyState";
+import { useSearch } from "../context/SearchContext";
 
-const CATEGORIES = ["All", "Fiction", "Fantasy", "Self-Help", "Romance", "Non-Fiction"];
+const CATEGORIES = ["All", "Fiction", "Fantasy", "Classics", "Self-Help", "Romance"];
 
 export default function BookCatalog() {
   const [books, setBooks] = useState([]);
   const [category, setCategory] = useState("All");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const { query } = useSearch();
 
-  useEffect(() => {
+  const load = (cat) => {
     setLoading(true);
-    const request = category === "All" ? getAllBooks() : getBooksByCategory(category);
+    setError("");
+    const request = cat === "All" ? getAllBooks() : getBooksByCategory(cat);
     request
       .then((res) => setBooks(res.data))
-      .catch(() => setError("Could not load books. Is the backend running?"))
+      .catch(() => setError("Could not reach the Book Catalog Service. Is it running on the gateway?"))
       .finally(() => setLoading(false));
-  }, [category]);
+  };
+
+  useEffect(() => {
+    if (query) {
+      setLoading(true);
+      searchBooks(query)
+        .then((res) => setBooks(res.data))
+        .catch(() => setError("Search failed."))
+        .finally(() => setLoading(false));
+    } else {
+      load(category);
+    }
+    /* eslint-disable-next-line */
+  }, [category, query]);
 
   return (
-    <div style={{ padding: 24 }}>
-      <h2>Browse Books</h2>
+    <div>
+      <h1 style={{ fontSize: 26, marginBottom: 18 }}>Home Page</h1>
 
-      <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+      <div style={{ display: "flex", gap: 10, marginBottom: 24, flexWrap: "wrap" }}>
         {CATEGORIES.map((c) => (
           <button
             key={c}
+            className={`chip${category === c ? " active" : ""}`}
             onClick={() => setCategory(c)}
-            style={{
-              padding: "6px 14px", borderRadius: 20, border: "1px solid #1F3864",
-              background: category === c ? "#1F3864" : "white",
-              color: category === c ? "white" : "#1F3864", cursor: "pointer",
-            }}
           >
             {c}
           </button>
         ))}
       </div>
 
-      {loading && <p>Loading books...</p>}
-      {error && <p style={{ color: "red" }}>{error}</p>}
+      {loading && <LoadingState text="Loading books..." />}
+      {error && <p className="error-text">{error}</p>}
+      {!loading && !error && books.length === 0 && (
+        <EmptyState title="No books here yet" subtitle="Try a different category or check back soon." />
+      )}
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 16 }}>
-        {books.map((book) => (
-          <BookCard key={book.id} book={book} />
-        ))}
+      <div className="book-grid">
+        {books.map((b) => <BookCard key={b.id} book={b} />)}
       </div>
     </div>
   );

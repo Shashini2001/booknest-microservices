@@ -2,12 +2,13 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Login() {
+export default function Register() {
+  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { loginUser } = useAuth();
+  const { registerUser } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -15,10 +16,10 @@ export default function Login() {
     setError("");
     setLoading(true);
     try {
-      await loginUser(email, password);
+      await registerUser(fullName, email, password);
       navigate("/");
     } catch (err) {
-      setError("That email or password doesn't match our records.");
+      setError("Could not create your account. That email may already be registered.");
     } finally {
       setLoading(false);
     }
@@ -28,25 +29,30 @@ export default function Login() {
     <div className="auth-wrap">
       <div className="auth-card">
         <div className="auth-logo">B</div>
-        <h2 className="auth-title">Welcome back to BookNest</h2>
+        <h2 className="auth-title">Create your BookNest account</h2>
         <form onSubmit={handleSubmit}>
           <div className="field-group">
+            <label className="field-label">Full Name</label>
+            <input placeholder="Full Name" value={fullName}
+              onChange={(e) => setFullName(e.target.value)} required />
+          </div>
+          <div className="field-group">
             <label className="field-label">Email</label>
-            <input type="email" placeholder="Email or email" value={email}
+            <input type="email" placeholder="email@example.com" value={email}
               onChange={(e) => setEmail(e.target.value)} required />
           </div>
           <div className="field-group">
             <label className="field-label">Password</label>
             <input type="password" placeholder="Password" value={password}
-              onChange={(e) => setPassword(e.target.value)} required />
+              onChange={(e) => setPassword(e.target.value)} required minLength={6} />
           </div>
           {error && <p className="error-text">{error}</p>}
           <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
-            {loading ? "Logging in..." : "Login"}
+            {loading ? "Creating account..." : "Create Account"}
           </button>
         </form>
         <p className="auth-footer">
-          No account? <Link to="/register">Create one</Link>
+          Already have an account? <Link to="/login">Login</Link>
         </p>
       </div>
     </div>

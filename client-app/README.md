@@ -1,20 +1,34 @@
-# BookNest Client App
+# BookNest Client App (Full Frontend)
+
+11 pages, all wired to your 5 backend microservices through the Gateway.
+
+## Pages included
+- Login, Register
+- Book Catalog (Home)
+- Book Detail (add to cart / mark as reading / add to favorites)
+- Reading Dashboard (chart + currently reading + completed)
+- Cart
+- Checkout
+- Order History
+- Order Tracking (status timeline + live courier panel, polls every 5s)
+- Profile
+- Admin Panel (book list with delete)
 
 ## Run locally
-1. `npm install`
-2. Make sure the API Gateway is running on http://localhost:8080 (or edit .env)
-3. `npm start` -> opens http://localhost:3000
+1. Make sure the API Gateway is running on http://localhost:8080
+   (or edit .env: REACT_APP_API_URL)
+2. npm install
+3. npm start -> opens http://localhost:3000
 
-## What's already wired up
-- src/api/axiosClient.js -> shared axios instance pointing at the Gateway, attaches JWT automatically
-- src/api/bookApi.js, authApi.js -> one file per microservice
-- src/context/AuthContext.jsx -> login state + token storage
-- src/pages/Login.jsx -> working login form
-- src/pages/BookCatalog.jsx -> working book grid with category filter, calls the real API
+## Design system
+All styling lives in src/index.css as CSS variables (--paper, --primary, --gold, etc.)
+Change the palette there to re-theme the whole app in one place.
+Fonts: Lora (headings) + Inter (body), loaded from Google Fonts in public/index.html.
 
-## Next steps for your team
-1. Add pages/Register.jsx (copy Login.jsx pattern)
-2. Add pages/BookDetail.jsx (fetch via getBookById)
-3. Add src/api/readingApi.js, orderApi.js, deliveryApi.js (same pattern as bookApi.js)
-4. Add pages/ReadingDashboard.jsx, Cart.jsx, Checkout.jsx, OrderTracking.jsx
-5. Register each new page as a <Route> in App.jsx
+## Notes
+- Cart state is kept in localStorage (see context/CartContext.jsx) so it survives refreshes.
+- Auth token + user info also persist in localStorage (context/AuthContext.jsx).
+- Order Tracking polls the Delivery Service every 5 seconds - swap for a
+  WebSocket connection later for true real-time updates.
+- Admin Panel currently only manages books; extend it to manage orders/users
+  the same way if your assignment needs that.
