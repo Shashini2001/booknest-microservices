@@ -1,10 +1,30 @@
 # BookNest Microservices — Complete System
+## Introduction
+BookNest is a microservices-based online library and bookstore system that combines book purchasing with personal reading tracking. Users can browse books, make purchases, track deliveries, and maintain a personal reading dashboard with progress tracking, favorites, and reading statistics.
+
 
 ## Everything included
 - auth-service, book-service, reading-progress-service, order-service, delivery-service
 - api-gateway (routes /api/** to the right service, configurable via env vars)
 - client-app (React, 11 pages, connected through the gateway)
 - docker-compose.yml (runs the entire system with one command)
+
+## System Architecture
+
+<img width="1033" height="825" alt="Microservices-Based System Architecture drawio" src="https://github.com/user-attachments/assets/a220531e-44f4-42dc-a6bc-b13af38d0cb3" />
+
+## Port map
+| Service | Port |
+|---|---|
+| API Gateway | 8080 |
+| Auth Service | 8081 |
+| Book Catalog Service | 8087 |
+| Reading Progress Service | 8083 |
+| Order Service | 8084 |
+| Delivery Service | 8085 |
+| Client App | 3000 |
+| MongoDB | 27017 |
+| RabbitMQ | 5672 (AMQP), 15672 (management UI) |
 
 ## Fastest way to run everything
 ```
@@ -22,18 +42,7 @@ minutes. After that, open http://localhost:3000
    moving to the next)
 4. `cd client-app && npm install && npm start`
 
-## Port map
-| Service | Port |
-|---|---|
-| API Gateway | 8080 |
-| Auth Service | 8081 |
-| Book Catalog Service | 8087 |
-| Reading Progress Service | 8083 |
-| Order Service | 8084 |
-| Delivery Service | 8085 |
-| Client App | 3000 |
-| MongoDB | 27017 |
-| RabbitMQ | 5672 (AMQP), 15672 (management UI) |
+
 
 ## Notes
 - Client app always calls the Gateway (localhost:8080/api), never a
