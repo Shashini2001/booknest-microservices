@@ -1,6 +1,6 @@
 # BookNest — Online Library & Bookstore with Reading Tracker
 
-**Module:** Service Oriented Computing — Microservices-Based System Architecture Project
+**Module:** Service Oriented Computing - Microservices-Based System Architecture Project
 **Project Supervisor:** Mr. Anjana Chanakya Bandara Abeykoon
 
 BookNest is a distributed, event-driven microservices system for browsing, buying, reading, and tracking books. Five independently owned Spring Boot services sit behind a single API Gateway and are consumed by one shared React client, with Order and Delivery talking to each other asynchronously over RabbitMQ instead of calling each other directly.
@@ -16,7 +16,7 @@ BookNest is a distributed, event-driven microservices system for browsing, buyin
 ## Architecture
 <img width="1033" height="825" alt="Microservices-Based System Architecture drawio" src="https://github.com/user-attachments/assets/a220531e-44f4-42dc-a6bc-b13af38d0cb3" />
 
-The client and every microservice talk to each other **only** through the API Gateway — nothing calls another service's port directly except the Gateway itself. The one exception is Order ↔ Delivery, which are deliberately *not* wired together with a direct call: they exchange asynchronous events over RabbitMQ instead, so placing an order never blocks on the delivery record being created.
+The client and every microservice talk to each other **only** through the API Gateway  nothing calls another service's port directly except the Gateway itself. The one exception is Order ↔ Delivery, which are deliberately *not* wired together with a direct call: they exchange asynchronous events over RabbitMQ instead, so placing an order never blocks on the delivery record being created.
 
 Supporting infrastructure: **MongoDB** (`:27017`, one instance / five logical databases), **RabbitMQ** (`:5672`, management UI on `:15672`), and **Mongo Express** (`:8090`) for browsing the databases during development.
 
